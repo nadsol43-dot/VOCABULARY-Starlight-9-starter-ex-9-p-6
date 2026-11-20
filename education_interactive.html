@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Education & Learning – interactive</title>
+<style>
+*{box-sizing:border-box}
+body{font-family:Arial,Helvetica,sans-serif;margin:0;background:#faf5f9;color:#222;line-height:1.5;font-size:16px}
+header{background:#b0177f;color:#fff;padding:12px 18px;position:sticky;top:0;z-index:5}
+header h1{margin:0;font-size:20px}
+.bar{height:10px;background:#ffffff55;border-radius:6px;margin-top:8px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:#ffd84d;transition:width .4s}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.tab{border:0;border-radius:16px;padding:4px 11px;background:#ffffff33;color:#fff;cursor:pointer;font-size:14px}
+.tab.cur{background:#fff;color:#b0177f;font-weight:bold}
+.tab.ok::after{content:" ✓"}
+main{max-width:860px;margin:0 auto;padding:14px 18px 90px}
+.step{display:none}.step.cur{display:block}
+h2{color:#b0177f;margin:8px 0 4px}
+h3{margin:22px 0 6px;font-size:17px}
+.hint{color:#666;font-size:14px;margin:2px 0 10px}
+.tip{background:#eef6ff;border-left:4px solid #3a7bd5;padding:8px 12px;margin:10px 0;border-radius:4px}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px}
+.flip{background:#fff;border:2px solid #b0177f;border-radius:12px;min-height:112px;padding:10px;cursor:pointer;text-align:center;display:flex;flex-direction:column;justify-content:center;position:relative;user-select:none;transition:transform .15s}
+.flip:hover{transform:translateY(-2px)}
+.flip .f{font-weight:bold;font-size:18px}.flip .f small{display:block;font-weight:normal;color:#999;font-size:12px;margin-top:4px}
+.flip .b{display:none;font-size:14px}.flip .b em{display:block;color:#b0177f;font-style:normal;font-weight:bold;margin-top:4px}
+.flip.on{background:#fdeaf6}.flip.on .f{display:none}.flip.on .b{display:block}
+.pic{display:block;width:100%;max-width:150px;margin:0 auto 6px;border-radius:8px}
+.fix{display:none;font-weight:bold;color:#1c7a41}.q.done .fix{display:inline}
+.ti{width:130px;font-size:15px;padding:3px 6px;border:2px solid #b0177f;border-radius:8px}
+.ti.done{border-color:#2e9e5b;background:#e3f6ea;color:#1c7a41;font-weight:bold}
+.ti.bad{background:#e2504c!important;color:#fff!important;animation:sh .35s}
+.say{position:absolute;top:4px;right:6px;border:0;background:none;cursor:pointer;font-size:16px}
+.q{background:#fff;border-radius:10px;padding:10px 12px;margin:8px 0;border:1px solid #e3cfdc}
+.q.done{border-color:#2e9e5b;background:#f1fbf5}
+.opt{border:2px solid #b0177f;background:#fff;color:#b0177f;border-radius:18px;padding:5px 13px;margin:4px 4px 0 0;cursor:pointer;font-size:15px}
+.opt:hover{background:#fdeaf6}
+.opt.good{background:#2e9e5b;border-color:#2e9e5b;color:#fff}
+.opt.bad,.chip.bad,.m.bad{background:#e2504c!important;border-color:#e2504c!important;color:#fff!important;animation:sh .35s}
+.q.done .opt:not(.good){opacity:.35;pointer-events:none}
+.q.done .opt.x{text-decoration:line-through}
+@keyframes sh{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.bank{display:flex;flex-wrap:wrap;gap:8px;padding:10px;border:2px dashed #b0177f;border-radius:10px;background:#fff;min-height:54px;margin:8px 0}
+.chip{background:#b0177f;color:#fff;border:2px solid #b0177f;border-radius:18px;padding:5px 13px;cursor:grab;touch-action:none;user-select:none;display:inline-block}
+.chip.pc{border-radius:12px;padding:5px;text-align:center;font-size:14px;width:118px}
+.chip.pc img{display:block;width:104px;height:104px;border-radius:8px;margin:0 auto 3px;pointer-events:none}
+.chip.sel{background:#ffd84d;color:#222;border-color:#222}
+.chip.dragging{opacity:.3}
+.chip.lock{background:#2e9e5b;border-color:#2e9e5b;cursor:default}
+.ghost{position:fixed;pointer-events:none;z-index:99;transform:translate(-50%,-50%) rotate(-3deg);box-shadow:0 6px 14px #0004}
+.cols{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(180px,1fr))}
+.bucket{background:#fff;border:2px solid #ccc;border-radius:10px;min-height:120px;padding:8px;display:flex;flex-wrap:wrap;gap:6px;align-content:flex-start}
+.bucket b{width:100%;text-align:center}
+.zone.hot{border-color:#ffb300;background:#fff8e1}
+.gap{display:inline-block;min-width:110px;border:2px dashed #999;border-radius:8px;padding:1px 8px;text-align:center;background:#fff;color:#999;cursor:pointer}
+.gap.done{border:2px solid #2e9e5b;background:#e3f6ea;color:#1c7a41;font-weight:bold;cursor:default}
+.row{background:#fff;border:1px solid #e3cfdc;border-radius:10px;padding:8px 12px;margin:8px 0}
+.match{display:grid;grid-template-columns:1fr 1fr;gap:8px 20px}
+.match>div{display:flex;flex-direction:column;gap:8px}
+.m{background:#fff;border:2px solid #b0177f;border-radius:10px;padding:8px 10px;cursor:pointer}
+.m.sel{background:#ffd84d}.m.done{background:#e3f6ea;border-color:#2e9e5b;cursor:default}
+.review{background:#fff;border-radius:10px;padding:12px;border:1px solid #e3cfdc;margin:10px 0;line-height:2.1}
+nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #ddd;padding:10px;display:flex;justify-content:center;gap:10px}
+nav button{border:0;border-radius:20px;padding:9px 20px;font-size:15px;cursor:pointer;background:#b0177f;color:#fff}
+nav button.g{background:#eee;color:#444}
+select,input[type=text]{font-size:15px;padding:4px 6px;border:2px solid #b0177f;border-radius:8px}
+#out{background:#fff;border:2px solid #b0177f;border-radius:12px;padding:14px;font-size:17px;margin-top:12px}
+#win{display:none;background:#fff8d6;border:2px solid #ffb300;border-radius:12px;padding:12px;text-align:center;font-size:18px;margin:10px 0}
+</style></head><body>
+<header>
+<h1>🎓 Education &amp; Learning: study words</h1>
+<div class="bar"><i id="pb"></i></div>
+<div class="tabs" id="tabs"></div>
+</header>
+<main id="main">
+<div id="win">🎉 Well done! You have finished all the tasks!</div>
+
+<section class="step" data-t="Key words">
+<h2>Step 1. Key words: studying</h2>
+<p class="hint">Click a card to turn it over. Click 🔊 to listen.</p>
+<div class="cards">
+<div class="flip"><button class="say">🔊</button><div class="f">a scholarship<small>click</small></div><div class="b">money that a good student GETS to pay for their studies<em>стипендия, грант на обучение</em></div></div>
+<div class="flip"><button class="say">🔊</button><div class="f">tuition fees<small>click</small></div><div class="b">money that you PAY to study at a college or university<em>плата за обучение</em></div></div>
+<div class="flip"><button class="say">🔊</button><div class="f">a course<small>click</small></div><div class="b">a set of lessons on one subject: <i>an online course, a language course</i><em>курс</em></div></div>
+<div class="flip"><button class="say">🔊</button><div class="f">a tutor<small>click</small></div><div class="b">a private teacher who helps ONE student<em>репетитор</em></div></div>
+<div class="flip"><button class="say">🔊</button><div class="f">notes<small>click</small></div><div class="b">important information that you write down: <i>to keep notes</i><em>записи, конспект</em></div></div>
+<div class="flip"><button class="say">🔊</button><div class="f">Law<small>click</small></div><div class="b">a university subject: you study it to become a lawyer<em>право, юриспруденция</em></div></div>
+</div>
+<h3>What is it? Click the right word.</h3>
+<div class="shuf">
+<div class="q task">Money you PAY to study at a college. <button class="opt" data-ok>tuition fees</button><button class="opt">a scholarship</button></div>
+<div class="q task">Money a very good student GETS to study. <button class="opt">tuition fees</button><button class="opt" data-ok>a scholarship</button></div>
+<div class="q task">A teacher who comes to your home and helps only you. <button class="opt" data-ok>a tutor</button><button class="opt">a classmate</button></div>
+<div class="q task">You write them in your notebook to remember information. <button class="opt" data-ok>notes</button><button class="opt">fees</button></div>
+<div class="q task">Ten lessons of Spanish on the Internet. <button class="opt" data-ok>an online course</button><button class="opt">a scholarship</button></div>
+</div>
+</section>
+
+<section class="step" data-t="Study verbs">
+<h2>Step 2. Study verbs</h2>
+<p class="hint">Click a card to turn it over.</p>
+<div class="cards">
+<div class="flip"><button class="say">🔊</button><div class="f">enrol<small>click</small></div><div class="b">to become a student of a university or a course: <i>She enrolled at university.</i><em>поступить, записаться</em></div></div>
+<div class="flip"><button class="say">🔊</button><div class="f">drop out<small>click</small></div><div class="b">to leave school or college before you finish: <i>He dropped out of college.</i><em>бросить учёбу</em></div></div>
+<div class="flip"><button class="say">🔊</button><div class="f">take a course<small>click</small></div><div class="b">to study on a course: <i>I take an online course.</i><em>проходить курс</em></div></div>
+<div class="flip"><button class="say">🔊</button><div class="f">do well<small>click</small></div><div class="b">to get good results: <i>She did well in her exams.</i> (opposite: <i>do badly</i>)<em>хорошо сдать, успешно справиться</em></div></div>
+<div class="flip"><button class="say">🔊</button><div class="f">win a scholarship<small>click</small></div><div class="b">to get a scholarship because you are one of the best<em>получить (выиграть) стипендию</em></div></div>
+<div class="flip"><button class="say">🔊</button><div class="f">tutor<small>click</small></div><div class="b">(verb) to teach one student privately: <i>My aunt tutors me in Maths.</i><em>заниматься с кем-то индивидуально</em></div></div>
+</div>
+<h3>a) Word friends: click the verb, then its friend.</h3>
+<div class="match">
+<div><div class="m L task" data-p="1">win</div><div class="m L task" data-p="2">enrol</div><div class="m L task" data-p="3">drop out</div><div class="m L task" data-p="4">do well</div><div class="m L task" data-p="5">take</div><div class="m L task" data-p="6">pay</div></div>
+<div class="shuf"><div class="m R" data-p="1">a scholarship</div><div class="m R" data-p="2">at university</div><div class="m R" data-p="3">of college</div><div class="m R" data-p="4">in exams</div><div class="m R" data-p="5">an online course</div><div class="m R" data-p="6">tuition fees</div></div>
+</div>
+<h3>b) Choose the correct verb.</h3>
+<div class="shuf">
+<div class="q task">He had no money for the fees, so he had to … of college. <button class="opt" data-ok>drop out</button><button class="opt">enrol</button></div>
+<div class="q task">She finished school and wants to … at a medical university. <button class="opt" data-ok>enrol</button><button class="opt">drop out</button></div>
+<div class="q task">I want to learn Chinese, so I … an online course. <button class="opt" data-ok>take</button><button class="opt">win</button></div>
+<div class="q task">Only the best students … a scholarship. <button class="opt" data-ok>win</button><button class="opt">take</button></div>
+<div class="q task">Study hard and you will … well in your exams. <button class="opt" data-ok>do</button><button class="opt">win</button></div>
+<div class="q task">I’m bad at Physics. Can your brother … me? <button class="opt" data-ok>tutor</button><button class="opt">enrol</button></div>
+</div>
+</section>
+
+<section class="step" data-t="Little words">
+<h2>Step 3. Little words matter</h2>
+<div class="tip">enrol <b>at</b> university / <b>on</b> a course &nbsp;•&nbsp; drop out <b>of</b> college &nbsp;•&nbsp; do well <b>in</b> exams &nbsp;•&nbsp; a scholarship <b>to</b> a college &nbsp;•&nbsp; have trouble <b>with</b> Maths</div>
+<h3>Click the right little word.</h3>
+<div class="shuf">
+<div class="q task">She enrolled … university to study Law. <button class="opt" data-ok>at</button><button class="opt">of</button></div>
+<div class="q task">He enrolled … an online course. <button class="opt" data-ok>on</button><button class="opt">of</button></div>
+<div class="q task">He dropped out … college. <button class="opt" data-ok>of</button><button class="opt">at</button></div>
+<div class="q task">She did well … her exams. <button class="opt" data-ok>in</button><button class="opt">of</button></div>
+<div class="q task">He won a scholarship … a college. <button class="opt" data-ok>to</button><button class="opt">of</button></div>
+<div class="q task">She has trouble … Maths. <button class="opt" data-ok>with</button><button class="opt">of</button></div>
+<div class="q task">I did badly … my English test. <button class="opt" data-ok>in</button><button class="opt">to</button></div>
+<div class="q task">Many students drop out … school because they have to work. <button class="opt" data-ok>of</button><button class="opt">on</button></div>
+</div>
+</section>
+
+<section class="step" data-t="Memory">
+<h2>Step 4. Memory verbs: memorise and recall</h2>
+<div class="cards">
+<div class="flip"><button class="say">🔊</button><div class="f">memorise<small>click</small></div><div class="b">to PUT something INTO your memory; to learn it by heart: <i>memorise a poem</i><em>выучить наизусть, запомнить</em></div></div>
+<div class="flip"><button class="say">🔊</button><div class="f">recall<small>click</small></div><div class="b">to GET something OUT OF your memory; to remember: <i>I can’t recall his name.</i><em>вспомнить</em></div></div>
+<div class="flip"><button class="say">🔊</button><div class="f">have difficulty<small>click</small></div><div class="b">something is hard for you: <i>He has difficulty recall<b>ing</b> names.</i> (+ -ing!)<em>испытывать трудности с…</em></div></div>
+</div>
+<div class="tip">🧠 <b>memorise</b> = IN ⬇ (before the lesson) &nbsp;|&nbsp; <b>recall</b> = OUT ⬆ (later, when you need it)</div>
+<h3>a) Drag the situations to the right box.</h3>
+<div class="bank sort"><span class="chip" data-val="a">learn a poem by heart</span><span class="chip" data-val="b">repeat new words ten times</span><span class="chip" data-val="c">learn a phone number</span><span class="chip" data-val="d">learn your lines for the school play</span><span class="chip" data-val="e">“What’s his name? Ah, yes – Tom!”</span><span class="chip" data-val="f">answer a question about last week’s lesson</span><span class="chip" data-val="g">think where you put your keys</span><span class="chip" data-val="h">tell a story from your childhood</span></div>
+<div class="cols">
+<div class="bucket zone" data-accept="a|b|c|d"><b>memorise (IN ⬇)</b></div>
+<div class="bucket zone" data-accept="e|f|g|h"><b>recall (OUT ⬆)</b></div>
+</div>
+<h3>b) Choose the correct verb.</h3>
+<div class="shuf">
+<div class="q task">I need to … this poem for tomorrow’s lesson. <button class="opt" data-ok>memorise</button><button class="opt">recall</button></div>
+<div class="q task">I know her face, but I can’t … her name. <button class="opt">memorise</button><button class="opt" data-ok>recall</button></div>
+<div class="q task">Actors have to … their lines before the play. <button class="opt" data-ok>memorise</button><button class="opt">recall</button></div>
+<div class="q task">Can you … what the teacher said last week? <button class="opt">memorise</button><button class="opt" data-ok>recall</button></div>
+<div class="q task">Repeat the new words many times to … them. <button class="opt" data-ok>memorise</button><button class="opt">recall</button></div>
+<div class="q task">In the exam he couldn’t … the date of the battle. <button class="opt">memorise</button><button class="opt" data-ok>recall</button></div>
+</div>
+</section>
+
+<section class="step" data-t="Good or bad?">
+<h2>Step 5. Good news 😊 or bad news 😟?</h2>
+<p class="hint">Drag the phrases to the right box.</p>
+<div class="bank sort"><span class="chip" data-val="a">win a scholarship</span><span class="chip" data-val="b">do well in exams</span><span class="chip" data-val="c">enrol at university</span><span class="chip" data-val="d">memorise the poem easily</span><span class="chip" data-val="e">drop out of college</span><span class="chip" data-val="f">do badly in exams</span><span class="chip" data-val="g">can’t pay the tuition fees</span><span class="chip" data-val="h">have difficulty recalling information</span><span class="chip" data-val="i">have trouble with Maths</span></div>
+<div class="cols">
+<div class="bucket zone" data-accept="a|b|c|d"><b>😊 Good news for a student</b></div>
+<div class="bucket zone" data-accept="e|f|g|h|i"><b>😟 Bad news for a student</b></div>
+</div>
+<h3>Why? Choose the best ending.</h3>
+<div class="q task">He dropped out of college because… <button class="opt" data-ok>he couldn’t pay the tuition fees.</button><button class="opt">he won a scholarship.</button></div>
+<div class="q task">She asked her aunt to tutor her because… <button class="opt" data-ok>she had trouble with Maths.</button><button class="opt">she did well in Maths.</button></div>
+<div class="q task">He keeps notes because… <button class="opt" data-ok>he has difficulty recalling information.</button><button class="opt">he wants to drop out.</button></div>
+<div class="q task">She won a scholarship because… <button class="opt" data-ok>she did very well in her exams.</button><button class="opt">she did badly in her exams.</button></div>
+</section>
+
+<section class="step" data-t="Right form">
+<h2>Step 6. The right form</h2>
+<div class="tip"><b>Past (yesterday, last year):</b> win → <b>won</b> &nbsp;•&nbsp; do → <b>did</b> &nbsp;•&nbsp; enrol → <b>enrolled</b> &nbsp;•&nbsp; take → <b>took</b><br>
+<b>After “to”:</b> the simple form – to <b>tutor</b>, to <b>memorise</b>, to <b>drop out</b><br>
+<b>After “have difficulty / have trouble”:</b> -ing – difficulty recall<b>ing</b></div>
+<h3>Choose the correct form.</h3>
+<div class="shuf">
+<div class="q task">Last year he … a prize in a Maths competition. <button class="opt" data-ok>won</button><button class="opt">win</button></div>
+<div class="q task">She wants to … on a cooking course. <button class="opt" data-ok>enrol</button><button class="opt">enrolled</button></div>
+<div class="q task">He has difficulty … people’s names. <button class="opt" data-ok>recalling</button><button class="opt">recall</button></div>
+<div class="q task">She … badly in her test yesterday. <button class="opt" data-ok>did</button><button class="opt">do</button></div>
+<div class="q task">I asked my brother to … me in English. <button class="opt" data-ok>tutor</button><button class="opt">tutored</button></div>
+<div class="q task">Many students … extra classes after school. <button class="opt" data-ok>take</button><button class="opt">taking</button></div>
+<div class="q task">To … new words, write them on cards. <button class="opt" data-ok>memorise</button><button class="opt">memorised</button></div>
+<div class="q task">He was forced to … of school and find a job. <button class="opt" data-ok>drop out</button><button class="opt">dropped out</button></div>
+<div class="q task">In 2020 my sister … at a music college. <button class="opt" data-ok>enrolled</button><button class="opt">enrol</button></div>
+<div class="q task">I have trouble … long poems. <button class="opt" data-ok>memorising</button><button class="opt">memorise</button></div>
+</div>
+</section>
+
+<section class="step" data-t="Story">
+<h2>Step 7. Complete Leo’s story</h2>
+<p class="hint">Drag a word into a gap — or click the word, then click the gap.</p>
+<div class="bank"><span class="chip" data-val="did">did</span><span class="chip" data-val="won">won</span><span class="chip" data-val="enrolled">enrolled</span><span class="chip" data-val="take">take</span><span class="chip" data-val="memorise">memorise</span><span class="chip" data-val="recalling">recalling</span><span class="chip" data-val="tutor">tutor</span><span class="chip" data-val="drop out">drop out</span></div>
+<div class="review">Last year my cousin Leo <span class="gap zone" data-accept="did">1</span> very well in his school exams and <span class="gap zone" data-accept="won">2</span> a scholarship to a music college. In September he <span class="gap zone" data-accept="enrolled">3</span> at the college. Students there usually <span class="gap zone" data-accept="take">4</span> extra courses in the evenings, so Leo is very busy. He has to <span class="gap zone" data-accept="memorise">5</span> long pieces of music. Sometimes he has difficulty <span class="gap zone" data-accept="recalling">6</span> them on stage, so he asked an older student to <span class="gap zone" data-accept="tutor">7</span> him. Leo works hard because he doesn’t want to <span class="gap zone" data-accept="drop out">8</span> of college.</div>
+</section>
+
+<section class="step" data-t="Ex. 9">
+<h2>Step 8. Now you are ready! Complete the sentences</h2>
+<p class="hint">Think: Which words are “friends”? Is it the past? Is there “to” before the gap?</p>
+<div class="bank"><span class="chip" data-val="won">won</span><span class="chip" data-val="did">did</span><span class="chip" data-val="drop out">drop out</span><span class="chip" data-val="memorise">memorise</span><span class="chip" data-val="enrolled">enrolled</span><span class="chip" data-val="take">take</span><span class="chip" data-val="recalling">recalling</span><span class="chip" data-val="tutor">tutor</span></div>
+<div class="row">1 He was forced to <span class="gap zone" data-accept="drop out">?</span> of college because he couldn’t pay the tuition fees.</div>
+<div class="row">2 He <span class="gap zone" data-accept="won">?</span> a scholarship to a college.</div>
+<div class="row">3 After finishing school, she <span class="gap zone" data-accept="enrolled">?</span> at university to study Law.</div>
+<div class="row">4 She <span class="gap zone" data-accept="did">?</span> well in her exams.</div>
+<div class="row">5 A lot of working people <span class="gap zone" data-accept="take">?</span> online courses to learn a foreign language.</div>
+<div class="row">6 She had trouble with Maths, so she asked her aunt to <span class="gap zone" data-accept="tutor">?</span> her.</div>
+<div class="row">7 He has difficulty <span class="gap zone" data-accept="recalling">?</span> information if he doesn’t keep notes.</div>
+<div class="row">8 To <span class="gap zone" data-accept="memorise">?</span> the poem, repeat it as many times as possible.</div>
+</section>
+
+<section class="step" data-t="Type it">
+<h2>Step 9. Type the word</h2>
+<p class="hint">No help this time! Type the missing English word. It turns green when it is correct.</p>
+<div class="shuf">
+<div class="row">бросить колледж = to <input class="ti task" data-a="drop" placeholder="d…"> out of college</div>
+<div class="row">получить стипендию = to <input class="ti task" data-a="win" placeholder="w…"> a scholarship</div>
+<div class="row">поступить в университет = to <input class="ti task" data-a="enrol|enroll" placeholder="e…"> at university</div>
+<div class="row">выучить стихотворение наизусть = to <input class="ti task" data-a="memorise|memorize" placeholder="m…"> a poem</div>
+<div class="row">вспомнить имя = to <input class="ti task" data-a="recall" placeholder="r…"> a name</div>
+<div class="row">хорошо сдать экзамены = to <input class="ti task" data-a="do" placeholder="d…"> well in exams</div>
+<div class="row">проходить онлайн-курс = to <input class="ti task" data-a="take|do" placeholder="t…"> an online course</div>
+<div class="row">плата за обучение = tuition <input class="ti task" data-a="fees" placeholder="f…"></div>
+<div class="row">репетитор = a <input class="ti task" data-a="tutor" placeholder="t…"></div>
+<div class="row">стипендия = a <input class="ti task" data-a="scholarship" placeholder="s…"></div>
+<div class="row">Он получил стипендию (прошлое) = He <input class="ti task" data-a="won" placeholder="w…"> a scholarship.</div>
+<div class="row">Она хорошо сдала экзамены (прошлое) = She <input class="ti task" data-a="did" placeholder="d…"> well in her exams.</div>
+</div>
+</section>
+
+<section class="step" data-t="Speak">
+<h2>Step 10. Speak!</h2>
+<p class="hint">Click a card, read the question and answer it. Turn the card to see how to start.</p>
+<div class="cards" style="grid-template-columns:repeat(auto-fill,minmax(240px,1fr))">
+<div class="flip"><div class="f">Where would you like to <u>enrol</u> after school?<small>click for help</small></div><div class="b">After school I’d like to enrol at … to study …</div></div>
+<div class="flip"><div class="f">Would you like to <u>win a scholarship</u>? Where to?<small>click for help</small></div><div class="b">I’d like to win a scholarship to … because …</div></div>
+<div class="flip"><div class="f">Do you <u>take</u> any courses or extra classes?<small>click for help</small></div><div class="b">I take a … course. / I don’t take any courses, but I’d like to …</div></div>
+<div class="flip"><div class="f">Which subject do you usually <u>do well</u> in?<small>click for help</small></div><div class="b">I usually do well in … , but I sometimes do badly in …</div></div>
+<div class="flip"><div class="f">What is easy for you to <u>memorise</u>? What is hard?<small>click for help</small></div><div class="b">It’s easy for me to memorise … It’s hard to memorise …</div></div>
+<div class="flip"><div class="f">What do you have difficulty <u>recalling</u>?<small>click for help</small></div><div class="b">I have difficulty recalling … (names / dates / new words)</div></div>
+<div class="flip"><div class="f">Who could <u>tutor</u> you if you had trouble with a subject?<small>click for help</small></div><div class="b">If I had trouble with … , I would ask … to tutor me.</div></div>
+<div class="flip"><div class="f">Why do some students <u>drop out</u> of college?<small>click for help</small></div><div class="b">Some students drop out of college because …</div></div>
+</div>
+</section>
+</main>
+<nav><button class="g" id="prev">← Back</button><button class="g" id="reset">↺ Start again</button><button id="next">Next →</button></nav>
+
+<script>
+var main=document.getElementById('main'),tabs=document.getElementById('tabs'),initial=main.innerHTML,cur=0,sel=null,msel=null,drag=null;
+function $$(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))}
+function shuffle(el){var k=$$(':scope > *',el).filter(function(x){return x.tagName!=='B'});for(var i=k.length;i;i--){el.appendChild(k.splice(Math.floor(Math.random()*i),1)[0])}}
+function steps(){return $$('.step',main)}
+function init(){
+  $$('.gap',main).forEach(function(g){g.classList.add('task')});
+  $$('.bank.sort .chip',main).forEach(function(c){c.classList.add('task')});
+  $$('.bank,.shuf',main).forEach(shuffle);
+  $$('.q:not(.odd)',main).forEach(function(q){var o=$$('.opt',q),p=o[0].parentNode,m=document.createElement('span');p.insertBefore(m,o[0]);
+    for(var i=o.length;i;i--){p.insertBefore(o.splice(Math.floor(Math.random()*i),1)[0],m)}m.remove()});
+  tabs.innerHTML='';
+  steps().forEach(function(s,i){var b=document.createElement('button');b.className='tab';b.textContent=(i+1)+'. '+s.dataset.t;b.onclick=function(){show(i)};tabs.appendChild(b)});
+  $$('select,input',main).forEach(function(e){e.oninput=review});
+  sel=msel=null;review();show(cur);progress();
+}
+function show(i){var st=steps();cur=Math.max(0,Math.min(st.length-1,i));
+  st.forEach(function(s,k){s.classList.toggle('cur',k===cur)});
+  $$('.tab',tabs).forEach(function(t,k){t.classList.toggle('cur',k===cur)});
+  document.getElementById('prev').style.visibility=cur?'visible':'hidden';
+  document.getElementById('next').style.visibility=cur<st.length-1?'visible':'hidden';
+  if(sel){sel.classList.remove('sel');sel=null}
+  window.scrollTo(0,0)}
+function progress(){var all=$$('.task',main),d=all.filter(function(t){return t.classList.contains('done')});
+  document.getElementById('pb').style.width=(all.length?100*d.length/all.length:0)+'%';
+  steps().forEach(function(s,i){var t=$$('.task',s);tabs.children[i].classList.toggle('ok',t.length>0&&t.every(function(x){return x.classList.contains('done')}))});
+  document.getElementById('win').style.display=(all.length&&d.length===all.length)?'block':'none'}
+function wrong(el){el.classList.add('bad');setTimeout(function(){el.classList.remove('bad')},500)}
+function place(c,z){
+  if(sel){sel.classList.remove('sel');sel=null}
+  if(!z||z.closest('.step')!==c.closest('.step'))return;
+  if(z.classList.contains('gap')&&z.classList.contains('done'))return;
+  if(z.dataset.accept.split('|').indexOf(c.dataset.val)<0){wrong(c);return}
+  if(z.classList.contains('gap')){z.textContent=c.textContent;z.classList.add('done');c.remove()}
+  else{c.classList.add('lock','done');z.appendChild(c)}
+  progress()}
+function review(){}
+
+document.addEventListener('click',function(e){
+  var t=e.target,x;
+  if(x=t.closest('.say')){e.stopPropagation();try{var f=[].filter.call(x.parentNode.querySelector('.f').childNodes,function(n){return n.nodeType===3}).map(function(n){return n.textContent}).join(' ').replace(/[^a-z\- ]/gi,'').trim();var u=new SpeechSynthesisUtterance(f);u.lang='en-GB';u.rate=.85;speechSynthesis.cancel();speechSynthesis.speak(u)}catch(err){}return}
+  if(x=t.closest('.flip')){x.classList.toggle('on');return}
+  if(x=t.closest('.opt')){var q=x.closest('.q');if(q.classList.contains('done'))return;
+    if(x.hasAttribute('data-ok')){x.classList.add('good');q.classList.add('done');progress()}else wrong(x);return}
+  if(x=t.closest('.m')){if(x.classList.contains('done'))return;
+    if(x.classList.contains('L')){if(msel)msel.classList.remove('sel');msel=x;x.classList.add('sel')}
+    else if(msel){if(msel.dataset.p===x.dataset.p){msel.classList.remove('sel');msel.classList.add('done');x.classList.add('done');msel.textContent+=' ↔';msel=null;progress()}else wrong(x)}
+    return}
+  if((x=t.closest('.zone'))&&sel&&!t.closest('.chip')){place(sel,x)}
+});
+document.addEventListener('pointerdown',function(e){var c=e.target.closest('.chip');if(!c||c.classList.contains('lock'))return;drag={c:c,x:e.clientX,y:e.clientY,g:null}});
+document.addEventListener('pointermove',function(e){if(!drag)return;
+  if(!drag.g&&Math.abs(e.clientX-drag.x)+Math.abs(e.clientY-drag.y)>8){drag.g=drag.c.cloneNode(true);drag.g.classList.add('ghost');drag.g.classList.remove('sel');document.body.appendChild(drag.g);drag.c.classList.add('dragging')}
+  if(drag.g){drag.g.style.left=e.clientX+'px';drag.g.style.top=e.clientY+'px';
+    var el=document.elementFromPoint(e.clientX,e.clientY),z=el&&el.closest('.zone');$$('.zone.hot').forEach(function(h){if(h!==z)h.classList.remove('hot')});if(z)z.classList.add('hot')}});
+function endDrag(e,cancel){if(!drag)return;var d=drag;drag=null;$$('.zone.hot').forEach(function(h){h.classList.remove('hot')});
+  if(d.g){d.g.remove();d.c.classList.remove('dragging');if(!cancel){var el=document.elementFromPoint(e.clientX,e.clientY);place(d.c,el&&el.closest('.zone'))}}
+  else if(!cancel){if(sel)sel.classList.remove('sel');if(sel===d.c){sel=null}else{sel=d.c;sel.classList.add('sel')}}}
+document.addEventListener('pointerup',function(e){endDrag(e,false)});
+document.addEventListener('pointercancel',function(e){endDrag(e,true)});
+document.getElementById('prev').onclick=function(){show(cur-1)};
+document.getElementById('next').onclick=function(){show(cur+1)};
+document.getElementById('reset').onclick=function(){main.innerHTML=initial;cur=0;init()};
+document.addEventListener('input',function(e){var t=e.target;if(t.classList&&t.classList.contains('ti')&&t.dataset.a.split('|').indexOf(t.value.trim().toLowerCase())>=0){t.classList.add('done');t.disabled=true;progress()}});
+document.addEventListener('change',function(e){var t=e.target;if(t.classList&&t.classList.contains('ti')&&!t.classList.contains('done')&&t.value.trim())wrong(t)});
+init();
+</script>
+</body></html>
